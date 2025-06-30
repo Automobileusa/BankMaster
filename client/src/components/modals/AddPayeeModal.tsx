@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -78,9 +77,9 @@ export default function AddPayeeModal({ onClose, onPayeeAdded }: AddPayeeModalPr
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">Add New Payee</DialogTitle>
+          <DialogTitle>Add New Payee</DialogTitle>
           <DialogDescription>
-            Add a new payee to your bill payment list.
+            Add a new payee to your bill pay list by entering their details below.
           </DialogDescription>
         </DialogHeader>
 

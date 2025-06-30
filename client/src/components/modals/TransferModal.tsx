@@ -95,7 +95,7 @@ export default function TransferModal({ onClose }: TransferModalProps) {
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-gray-900">Transfer Money</DialogTitle>
           <DialogDescription>
-            Transfer funds between your accounts
+            Transfer money between your accounts. Enter the amount and select destination account.
           </DialogDescription>
         </DialogHeader>
 

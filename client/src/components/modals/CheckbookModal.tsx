@@ -271,7 +271,7 @@ export default function CheckbookModal({ onClose }: CheckbookModalProps) {
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-gray-900">Order Checkbook</DialogTitle>
           <DialogDescription>
-            Order custom checks for your checking account
+            Order a new checkbook by providing the payee details and delivery information.
           </DialogDescription>
         </DialogHeader>
         {renderContent()}
