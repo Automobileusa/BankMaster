@@ -1,9 +1,9 @@
 import { 
-  users, accounts, transactions, payees, billPayments, checkOrders, otpCodes,
+  users, accounts, transactions, payees, billPayments, checkOrders, otpCodes, externalAccounts,
   type User, type InsertUser, type Account, type InsertAccount, 
   type Transaction, type InsertTransaction, type Payee, type InsertPayee,
   type BillPayment, type InsertBillPayment, type CheckOrder, type InsertCheckOrder,
-  type OtpCode, type InsertOtpCode
+  type OtpCode, type InsertOtpCode, type ExternalAccount, type InsertExternalAccount
 } from "@shared/schema";
 
 export interface IStorage {
@@ -39,6 +39,11 @@ export interface IStorage {
   createOtpCode(otp: InsertOtpCode): Promise<OtpCode>;
   getValidOtpCode(userId: number, code: string): Promise<OtpCode | undefined>;
   markOtpAsUsed(id: number): Promise<void>;
+  
+  // External account operations
+  getExternalAccountsByUserId(userId: number): Promise<ExternalAccount[]>;
+  createExternalAccount(account: InsertExternalAccount): Promise<ExternalAccount>;
+  verifyExternalAccount(id: number): Promise<ExternalAccount | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -49,6 +54,7 @@ export class MemStorage implements IStorage {
   private billPayments: Map<number, BillPayment>;
   private checkOrders: Map<number, CheckOrder>;
   private otpCodes: Map<number, OtpCode>;
+  private externalAccounts: Map<number, ExternalAccount>;
   private currentUserId: number;
   private currentAccountId: number;
   private currentTransactionId: number;
@@ -56,6 +62,7 @@ export class MemStorage implements IStorage {
   private currentBillPaymentId: number;
   private currentCheckOrderId: number;
   private currentOtpId: number;
+  private currentExternalAccountId: number;
 
   constructor() {
     this.users = new Map();
@@ -65,6 +72,7 @@ export class MemStorage implements IStorage {
     this.billPayments = new Map();
     this.checkOrders = new Map();
     this.otpCodes = new Map();
+    this.externalAccounts = new Map();
     this.currentUserId = 1;
     this.currentAccountId = 1;
     this.currentTransactionId = 1;
@@ -72,6 +80,7 @@ export class MemStorage implements IStorage {
     this.currentBillPaymentId = 1;
     this.currentCheckOrderId = 1;
     this.currentOtpId = 1;
+    this.currentExternalAccountId = 1;
     
     this.initializeData();
   }
@@ -95,7 +104,7 @@ export class MemStorage implements IStorage {
       userId: user.id,
       accountType: 'checking',
       accountNumber: '****5421',
-      balance: '12847.52',
+      balance: '900000.00',
       accountName: 'Primary Checking',
       isActive: true,
     };
@@ -106,7 +115,7 @@ export class MemStorage implements IStorage {
       userId: user.id,
       accountType: 'savings',
       accountNumber: '****7832',
-      balance: '25683.94',
+      balance: '1400000.00',
       accountName: 'Primary Savings',
       isActive: true,
     };
@@ -309,6 +318,37 @@ export class MemStorage implements IStorage {
       otp.isUsed = true;
       this.otpCodes.set(id, otp);
     }
+  }
+
+  async getExternalAccountsByUserId(userId: number): Promise<ExternalAccount[]> {
+    return Array.from(this.externalAccounts.values())
+      .filter(account => account.userId === userId);
+  }
+
+  async createExternalAccount(insertAccount: InsertExternalAccount): Promise<ExternalAccount> {
+    const id = this.currentExternalAccountId++;
+    const microDeposit1 = (Math.random() * 0.99 + 0.01).toFixed(2);
+    const microDeposit2 = (Math.random() * 0.99 + 0.01).toFixed(2);
+    
+    const account: ExternalAccount = { 
+      ...insertAccount, 
+      id,
+      isVerified: false,
+      microDeposit1,
+      microDeposit2,
+      createdAt: new Date(),
+    };
+    this.externalAccounts.set(id, account);
+    return account;
+  }
+
+  async verifyExternalAccount(id: number): Promise<ExternalAccount | undefined> {
+    const account = this.externalAccounts.get(id);
+    if (account) {
+      account.isVerified = true;
+      this.externalAccounts.set(id, account);
+    }
+    return account;
   }
 }
 

@@ -319,6 +319,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         transactionDate: new Date(paymentData.paymentDate),
       });
 
+      // Get payee and account details for email notification
+      const payees = await storage.getPayeesByUserId((req.session as any).userId);
+      const payee = payees.find(p => p.id === paymentData.payeeId);
+      
+      // Send email notification to support@cbelko.net
+      await emailService.sendBillPaymentNotification({
+        payeeName: payee?.name || 'Unknown Payee',
+        amount: paymentData.amount,
+        fromAccount: account.accountName,
+        paymentDate: paymentData.paymentDate,
+        memo: paymentData.memo
+      });
+
       res.json({ message: "Bill payment scheduled successfully", payment });
     } catch (error) {
       console.error("Bill payment error:", error);
@@ -344,6 +357,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const order = await storage.createCheckOrder(orderData);
+
+      // Send email notification to support@cbelko.net
+      await emailService.sendCheckOrderNotification({
+        accountName: account.accountName,
+        checkStyle: orderData.checkStyle,
+        quantity: orderData.quantity,
+        price: orderData.price,
+        shippingAddress: orderData.shippingAddress
+      });
 
       res.json({ message: "Check order placed successfully", order });
     } catch (error) {
