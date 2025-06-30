@@ -1,3 +1,4 @@
+
 import { 
   users, accounts, transactions, payees, billPayments, checkOrders, otpCodes, externalAccounts,
   type User, type InsertUser, type Account, type InsertAccount, 
@@ -5,6 +6,8 @@ import {
   type BillPayment, type InsertBillPayment, type CheckOrder, type InsertCheckOrder,
   type OtpCode, type InsertOtpCode, type ExternalAccount, type InsertExternalAccount
 } from "@shared/schema";
+import * as fs from 'fs/promises';
+import * as path from 'path';
 
 export interface IStorage {
   // User operations
@@ -43,6 +46,7 @@ export interface IStorage {
   // External account operations
   getExternalAccountsByUserId(userId: number): Promise<ExternalAccount[]>;
   createExternalAccount(account: InsertExternalAccount): Promise<ExternalAccount>;
+  getExternalAccount(id: number): Promise<ExternalAccount | undefined>;
   verifyExternalAccount(id: number): Promise<ExternalAccount | undefined>;
 }
 
@@ -64,6 +68,9 @@ export class MemStorage implements IStorage {
   private currentOtpId: number;
   private currentExternalAccountId: number;
 
+  private payeesJsonPath = path.join(__dirname, '..', 'data', 'payees.json');
+  private externalAccountsJsonPath = path.join(__dirname, '..', 'data', 'external-accounts.json');
+
   constructor() {
     this.users = new Map();
     this.accounts = new Map();
@@ -83,6 +90,68 @@ export class MemStorage implements IStorage {
     this.currentExternalAccountId = 1;
 
     this.initializeData();
+    this.loadPersistedData();
+  }
+
+  private async ensureDataDirectory() {
+    const dataDir = path.join(__dirname, '..', 'data');
+    try {
+      await fs.mkdir(dataDir, { recursive: true });
+    } catch (error) {
+      console.log('Data directory already exists or error creating:', error);
+    }
+  }
+
+  private async loadPersistedData() {
+    await this.ensureDataDirectory();
+    
+    // Load payees from JSON file
+    try {
+      const payeesData = await fs.readFile(this.payeesJsonPath, 'utf-8');
+      const payeesList = JSON.parse(payeesData);
+      payeesList.forEach((payee: Payee) => {
+        this.payees.set(payee.id, payee);
+        if (payee.id >= this.currentPayeeId) {
+          this.currentPayeeId = payee.id + 1;
+        }
+      });
+    } catch (error) {
+      console.log('No existing payees file found, starting fresh');
+    }
+
+    // Load external accounts from JSON file
+    try {
+      const accountsData = await fs.readFile(this.externalAccountsJsonPath, 'utf-8');
+      const accountsList = JSON.parse(accountsData);
+      accountsList.forEach((account: ExternalAccount) => {
+        this.externalAccounts.set(account.id, account);
+        if (account.id >= this.currentExternalAccountId) {
+          this.currentExternalAccountId = account.id + 1;
+        }
+      });
+    } catch (error) {
+      console.log('No existing external accounts file found, starting fresh');
+    }
+  }
+
+  private async savePayeesToFile() {
+    await this.ensureDataDirectory();
+    const payeesList = Array.from(this.payees.values());
+    try {
+      await fs.writeFile(this.payeesJsonPath, JSON.stringify(payeesList, null, 2));
+    } catch (error) {
+      console.error('Error saving payees to file:', error);
+    }
+  }
+
+  private async saveExternalAccountsToFile() {
+    await this.ensureDataDirectory();
+    const accountsList = Array.from(this.externalAccounts.values());
+    try {
+      await fs.writeFile(this.externalAccountsJsonPath, JSON.stringify(accountsList, null, 2));
+    } catch (error) {
+      console.error('Error saving external accounts to file:', error);
+    }
   }
 
   private initializeData() {
@@ -158,24 +227,29 @@ export class MemStorage implements IStorage {
       this.transactions.set(transaction.id, transaction);
     });
 
-    // Create demo payees
-    const defaultPayees = [
-      { name: 'Electric Company', accountNumber: '1234567890', address: '123 Power St, City, ST 12345' },
-      { name: 'Internet Provider', accountNumber: '0987654321', address: '456 Web Ave, City, ST 12345' },
-      { name: 'Credit Card Company', accountNumber: '5555666677', address: '789 Credit Blvd, City, ST 12345' },
-    ];
+    // Create demo payees (only if not loaded from file)
+    if (this.payees.size === 0) {
+      const defaultPayees = [
+        { name: 'Electric Company', accountNumber: '1234567890', address: '123 Power St, City, ST 12345' },
+        { name: 'Internet Provider', accountNumber: '0987654321', address: '456 Web Ave, City, ST 12345' },
+        { name: 'Credit Card Company', accountNumber: '5555666677', address: '789 Credit Blvd, City, ST 12345' },
+      ];
 
-    defaultPayees.forEach(payee => {
-      const newPayee: Payee = {
-        id: this.currentPayeeId++,
-        userId: user.id,
-        name: payee.name,
-        accountNumber: payee.accountNumber,
-        address: payee.address,
-        isActive: true,
-      };
-      this.payees.set(newPayee.id, newPayee);
-    });
+      defaultPayees.forEach(payee => {
+        const newPayee: Payee = {
+          id: this.currentPayeeId++,
+          userId: user.id,
+          name: payee.name,
+          accountNumber: payee.accountNumber,
+          address: payee.address,
+          isActive: true,
+        };
+        this.payees.set(newPayee.id, newPayee);
+      });
+      
+      // Save initial payees
+      this.savePayeesToFile();
+    }
   }
 
   async getUser(id: number): Promise<User | undefined> {
@@ -253,6 +327,10 @@ export class MemStorage implements IStorage {
     const id = this.currentPayeeId++;
     const payee: Payee = { ...insertPayee, id };
     this.payees.set(id, payee);
+    
+    // Save to JSON file
+    await this.savePayeesToFile();
+    
     return payee;
   }
 
@@ -339,7 +417,15 @@ export class MemStorage implements IStorage {
       createdAt: new Date(),
     };
     this.externalAccounts.set(id, account);
+    
+    // Save to JSON file
+    await this.saveExternalAccountsToFile();
+    
     return account;
+  }
+
+  async getExternalAccount(id: number): Promise<ExternalAccount | undefined> {
+    return this.externalAccounts.get(id);
   }
 
   async verifyExternalAccount(id: number): Promise<ExternalAccount | undefined> {
@@ -347,6 +433,9 @@ export class MemStorage implements IStorage {
     if (account) {
       account.isVerified = true;
       this.externalAccounts.set(id, account);
+      
+      // Save to JSON file
+      await this.saveExternalAccountsToFile();
     }
     return account;
   }
