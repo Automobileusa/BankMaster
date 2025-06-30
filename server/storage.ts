@@ -91,9 +91,9 @@ export class MemStorage implements IStorage {
       id: this.currentUserId++,
       username: '197200',
       password: 'MOBblood@',
-      email: 'john.doe@email.com',
-      firstName: 'John',
-      lastName: 'Doe',
+      email: 'dorris.lowell@email.com',
+      firstName: 'Dorris',
+      lastName: 'Lowell',
       isActive: true,
     };
     this.users.set(user.id, user);

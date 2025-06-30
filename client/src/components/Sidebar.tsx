@@ -33,8 +33,8 @@ export default function Sidebar({ activeSection, onSectionChange }: SidebarProps
   ];
 
   return (
-    <Card className={`h-full transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-64'}`}>
-      <div className="p-4">
+    <Card className={`h-full min-h-[calc(100vh-120px)] transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-64'} shadow-lg`}>
+      <div className="p-4 h-full">
         <div className="flex justify-between items-center mb-6">
           {!isCollapsed && (
             <h2 className="text-lg font-bold text-key-red">Menu</h2>
@@ -43,7 +43,7 @@ export default function Sidebar({ activeSection, onSectionChange }: SidebarProps
             variant="ghost"
             size="sm"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-1"
+            className="p-1 hover:bg-gray-100"
           >
             {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </Button>
@@ -56,15 +56,18 @@ export default function Sidebar({ activeSection, onSectionChange }: SidebarProps
               <Button
                 key={item.id}
                 variant={activeSection === item.id ? "default" : "ghost"}
-                className={`w-full justify-start ${
+                className={`w-full justify-start transition-all duration-200 ${
                   activeSection === item.id 
-                    ? "bg-key-red hover:bg-red-700 text-white" 
-                    : "hover:bg-gray-100"
-                } ${isCollapsed ? 'px-2' : 'px-4'}`}
+                    ? "bg-key-red hover:bg-red-700 text-white shadow-md" 
+                    : "hover:bg-gray-100 text-gray-700 hover:text-gray-900"
+                } ${isCollapsed ? 'px-2 py-3' : 'px-4 py-3'} ${isCollapsed ? 'min-w-0' : 'min-w-max'}`}
                 onClick={() => onSectionChange(item.id)}
+                title={isCollapsed ? item.label : undefined}
               >
-                <Icon className={`h-4 w-4 ${isCollapsed ? '' : 'mr-3'}`} />
-                {!isCollapsed && item.label}
+                <Icon className={`h-4 w-4 flex-shrink-0 ${isCollapsed ? '' : 'mr-3'}`} />
+                {!isCollapsed && (
+                  <span className="truncate text-sm font-medium">{item.label}</span>
+                )}
               </Button>
             );
           })}

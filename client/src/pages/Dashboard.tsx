@@ -78,8 +78,148 @@ export default function Dashboard() {
 
   const renderContent = () => {
     switch (activeSection) {
+      case "dashboard":
+        return (
+          <>
+            {/* Welcome Section */}
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Good morning, {user.firstName}
+              </h1>
+              <p className="text-gray-600">
+                Here's your account overview for today, {new Date().toLocaleDateString('en-US', { 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
+              </p>
+            </div>
+
+            {/* Quick Actions */}
+            <QuickActions />
+
+            {/* Accounts Section */}
+            <div className="bg-white rounded-lg shadow-key p-6 mb-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold">My Accounts</h2>
+                <span className="text-sm text-gray-500">
+                  Total Balance: ${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+              
+              {accountsLoading ? (
+                <div className="text-center py-8">Loading accounts...</div>
+              ) : accountsError ? (
+                <div className="text-center py-8 text-red-600">
+                  Failed to load accounts. Please refresh the page.
+                </div>
+              ) : accounts.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  No accounts found.
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {accounts.map((account: any) => (
+                    <AccountCard key={account.id} account={account} />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Recent Transactions */}
+            <div className="bg-white rounded-lg shadow-key p-6 mb-8">
+              <h2 className="text-xl font-bold mb-6">Recent Transactions</h2>
+              
+              {transactionsLoading ? (
+                <div className="text-center py-8">Loading transactions...</div>
+              ) : transactionsError ? (
+                <div className="text-center py-8 text-red-600">
+                  Failed to load transactions. Please refresh the page.
+                </div>
+              ) : transactions.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  No recent transactions found.
+                </div>
+              ) : (
+                <TransactionTable transactions={transactions} />
+              )}
+            </div>
+
+            {/* Balance Overview Chart */}
+            <div className="bg-white rounded-lg shadow-key p-6 mb-8">
+              <h2 className="text-xl font-bold mb-6">Balance Trend</h2>
+              <div className="h-80">
+                <BalanceChart accounts={accounts} />
+              </div>
+            </div>
+          </>
+        );
+      
+      case "accounts":
+        return (
+          <div className="bg-white rounded-lg shadow-key p-6">
+            <h2 className="text-2xl font-bold mb-6">Account Details</h2>
+            {accounts.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                No accounts found.
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {accounts.map((account: any) => (
+                  <AccountCard key={account.id} account={account} />
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      
+      case "transfers":
+        return (
+          <div className="bg-white rounded-lg shadow-key p-6">
+            <h2 className="text-2xl font-bold mb-6">Transfer Money</h2>
+            <QuickActions />
+          </div>
+        );
+      
+      case "bills":
+        return (
+          <div className="bg-white rounded-lg shadow-key p-6">
+            <h2 className="text-2xl font-bold mb-6">Bill Pay</h2>
+            <p className="text-gray-600 mb-4">Manage your bill payments and schedule new ones.</p>
+            <QuickActions />
+          </div>
+        );
+      
       case "external":
         return <ExternalAccountsSection />;
+      
+      case "settings":
+        return (
+          <div className="bg-white rounded-lg shadow-key p-6">
+            <h2 className="text-2xl font-bold mb-6">Account Settings</h2>
+            <p className="text-gray-600">Manage your account preferences and security settings.</p>
+          </div>
+        );
+      
+      case "help":
+        return (
+          <div className="bg-white rounded-lg shadow-key p-6">
+            <h2 className="text-2xl font-bold mb-6">Help & Support</h2>
+            <p className="text-gray-600 mb-4">Get help with your banking needs.</p>
+            <div className="space-y-4">
+              <div className="p-4 border rounded-lg">
+                <h3 className="font-semibold">Contact Support</h3>
+                <p className="text-sm text-gray-600">Phone: 1-800-KEY-BANK</p>
+                <p className="text-sm text-gray-600">Email: support@keybank.com</p>
+              </div>
+              <div className="p-4 border rounded-lg">
+                <h3 className="font-semibold">Frequently Asked Questions</h3>
+                <p className="text-sm text-gray-600">Find answers to common banking questions.</p>
+              </div>
+            </div>
+          </div>
+        );
+      
       default:
         return (
           <>
