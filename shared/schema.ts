@@ -77,17 +77,22 @@ export const otpCodes = pgTable("otp_codes", {
 
 export const externalAccounts = pgTable("external_accounts", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
+  userId: integer("user_id").references(() => users.id).notNull(),
   bankName: text("bank_name").notNull(),
   accountName: text("account_name").notNull(),
   accountNumber: text("account_number").notNull(),
   routingNumber: text("routing_number").notNull(),
   address: text("address").notNull(),
-  isVerified: boolean("is_verified").notNull().default(false),
-  microDeposit1: decimal("micro_deposit_1", { precision: 5, scale: 2 }),
-  microDeposit2: decimal("micro_deposit_2", { precision: 5, scale: 2 }),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  microDeposit1: text("micro_deposit_1"),
+  microDeposit2: text("micro_deposit_2"),
+  isVerified: boolean("is_verified").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
 });
+
+export const insertExternalAccountSchema = createInsertSchema(externalAccounts);
+
+export type ExternalAccount = typeof externalAccounts.$inferSelect;
+export type InsertExternalAccount = typeof externalAccounts.$inferInsert;
 
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({ id: true });
@@ -97,7 +102,7 @@ export const insertPayeeSchema = createInsertSchema(payees).omit({ id: true });
 export const insertBillPaymentSchema = createInsertSchema(billPayments).omit({ id: true, createdAt: true });
 export const insertCheckOrderSchema = createInsertSchema(checkOrders).omit({ id: true, orderDate: true });
 export const insertOtpCodeSchema = createInsertSchema(otpCodes).omit({ id: true, createdAt: true });
-export const insertExternalAccountSchema = createInsertSchema(externalAccounts).omit({ id: true, createdAt: true });
+//export const insertExternalAccountSchema = createInsertSchema(externalAccounts).omit({ id: true, createdAt: true }); // Removed because already defined above
 
 // Types
 export type User = typeof users.$inferSelect;
@@ -114,5 +119,5 @@ export type CheckOrder = typeof checkOrders.$inferSelect;
 export type InsertCheckOrder = z.infer<typeof insertCheckOrderSchema>;
 export type OtpCode = typeof otpCodes.$inferSelect;
 export type InsertOtpCode = z.infer<typeof insertOtpCodeSchema>;
-export type ExternalAccount = typeof externalAccounts.$inferSelect;
-export type InsertExternalAccount = z.infer<typeof insertExternalAccountSchema>;
+//export type ExternalAccount = typeof externalAccounts.$inferSelect; // Removed because already defined above
+//export type InsertExternalAccount = z.infer<typeof insertExternalAccountSchema>; // Removed because already defined above

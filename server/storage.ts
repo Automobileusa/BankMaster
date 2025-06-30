@@ -11,35 +11,35 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  
+
   // Account operations
   getAccountsByUserId(userId: number): Promise<Account[]>;
   getAccount(id: number): Promise<Account | undefined>;
   createAccount(account: InsertAccount): Promise<Account>;
   updateAccountBalance(accountId: number, balance: string): Promise<Account | undefined>;
-  
+
   // Transaction operations
   getTransactionsByAccountId(accountId: number): Promise<Transaction[]>;
   getRecentTransactionsByUserId(userId: number, limit?: number): Promise<Transaction[]>;
   createTransaction(transaction: InsertTransaction): Promise<Transaction>;
-  
+
   // Payee operations
   getPayeesByUserId(userId: number): Promise<Payee[]>;
   createPayee(payee: InsertPayee): Promise<Payee>;
-  
+
   // Bill payment operations
   getBillPaymentsByUserId(userId: number): Promise<BillPayment[]>;
   createBillPayment(payment: InsertBillPayment): Promise<BillPayment>;
-  
+
   // Check order operations
   getCheckOrdersByUserId(userId: number): Promise<CheckOrder[]>;
   createCheckOrder(order: InsertCheckOrder): Promise<CheckOrder>;
-  
+
   // OTP operations
   createOtpCode(otp: InsertOtpCode): Promise<OtpCode>;
   getValidOtpCode(userId: number, code: string): Promise<OtpCode | undefined>;
   markOtpAsUsed(id: number): Promise<void>;
-  
+
   // External account operations
   getExternalAccountsByUserId(userId: number): Promise<ExternalAccount[]>;
   createExternalAccount(account: InsertExternalAccount): Promise<ExternalAccount>;
@@ -81,7 +81,7 @@ export class MemStorage implements IStorage {
     this.currentCheckOrderId = 1;
     this.currentOtpId = 1;
     this.currentExternalAccountId = 1;
-    
+
     this.initializeData();
   }
 
@@ -227,7 +227,7 @@ export class MemStorage implements IStorage {
   async getRecentTransactionsByUserId(userId: number, limit = 10): Promise<Transaction[]> {
     const userAccounts = await this.getAccountsByUserId(userId);
     const accountIds = userAccounts.map(acc => acc.id);
-    
+
     return Array.from(this.transactions.values())
       .filter(tx => accountIds.includes(tx.accountId))
       .sort((a, b) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime())
@@ -329,7 +329,7 @@ export class MemStorage implements IStorage {
     const id = this.currentExternalAccountId++;
     const microDeposit1 = (Math.random() * 0.99 + 0.01).toFixed(2);
     const microDeposit2 = (Math.random() * 0.99 + 0.01).toFixed(2);
-    
+
     const account: ExternalAccount = { 
       ...insertAccount, 
       id,

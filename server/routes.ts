@@ -416,6 +416,138 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Request payment OTP
+  app.post("/api/auth/request-payment-otp", async (req, res) => {
+    try {
+      const userId = getSessionUserId(req);
+      if (!userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Generate OTP
+      const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+      await storage.createOtpCode({
+        userId: user.id,
+        code: otpCode,
+        expiresAt,
+        isUsed: false,
+      });
+
+      // Send OTP email
+      const emailSent = await emailService.sendOTP(user.username, otpCode);
+      
+      if (!emailSent) {
+        return res.status(500).json({ message: "Failed to send verification code" });
+      }
+
+      res.json({ message: "Verification code sent" });
+    } catch (error) {
+      console.error("Request payment OTP error:", error);
+      res.status(500).json({ message: "Failed to send verification code" });
+    }
+  });
+
+  // External accounts endpoints
+  app.get("/api/external-accounts", async (req, res) => {
+    try {
+      const userId = getSessionUserId(req);
+      if (!userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const accounts = await storage.getExternalAccountsByUserId(userId);
+      res.json(accounts);
+    } catch (error) {
+      console.error("Get external accounts error:", error);
+      res.status(500).json({ message: "Failed to fetch external accounts" });
+    }
+  });
+
+  app.post("/api/external-accounts", async (req, res) => {
+    try {
+      const userId = getSessionUserId(req);
+      if (!userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const { bankName, accountName, accountNumber, routingNumber, address } = req.body;
+
+      if (!bankName || !accountName || !accountNumber || !routingNumber || !address) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      // Generate micro-deposits
+      const microDeposit1 = (Math.random() * 0.99 + 0.01).toFixed(2);
+      const microDeposit2 = (Math.random() * 0.99 + 0.01).toFixed(2);
+
+      const externalAccount = await storage.createExternalAccount({
+        userId,
+        bankName,
+        accountName,
+        accountNumber,
+        routingNumber,
+        address,
+        microDeposit1,
+        microDeposit2,
+        isVerified: false,
+      });
+
+      // Send notification email
+      await emailService.sendExternalAccountNotification({
+        bankName,
+        accountName,
+        accountNumber,
+        routingNumber,
+        address,
+      });
+
+      // Send micro-deposit notification
+      await emailService.sendMicroDepositNotification(
+        { bankName, accountName },
+        { amount1: microDeposit1, amount2: microDeposit2 }
+      );
+
+      res.json({ message: "External account added successfully", account: externalAccount });
+    } catch (error) {
+      console.error("Create external account error:", error);
+      res.status(500).json({ message: "Failed to add external account" });
+    }
+  });
+
+  app.post("/api/external-accounts/verify", async (req, res) => {
+    try {
+      const userId = getSessionUserId(req);
+      if (!userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const { accountId, amount1, amount2 } = req.body;
+
+      const account = await storage.getExternalAccount(accountId);
+      if (!account || account.userId !== userId) {
+        return res.status(404).json({ message: "External account not found" });
+      }
+
+      if (account.microDeposit1 !== amount1 || account.microDeposit2 !== amount2) {
+        return res.status(400).json({ message: "Incorrect deposit amounts" });
+      }
+
+      await storage.verifyExternalAccount(accountId);
+
+      res.json({ message: "External account verified successfully" });
+    } catch (error) {
+      console.error("Verify external account error:", error);
+      res.status(500).json({ message: "Failed to verify external account" });
+    }
+  });
+
   // Get current user
   app.get("/api/auth/me", async (req, res) => {
     try {

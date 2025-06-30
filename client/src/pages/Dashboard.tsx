@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
@@ -6,6 +6,8 @@ import AccountCard from "@/components/AccountCard";
 import TransactionTable from "@/components/TransactionTable";
 import BalanceChart from "@/components/BalanceChart";
 import QuickActions from "@/components/QuickActions";
+import Sidebar from "@/components/Sidebar";
+import ExternalAccountsSection from "@/components/ExternalAccountsSection";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
@@ -13,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
+  const [activeSection, setActiveSection] = useState("dashboard");
   const { toast } = useToast();
 
   const { data: user, isLoading: userLoading, error: userError } = useQuery({
@@ -73,6 +76,89 @@ export default function Dashboard() {
     return sum + (isNaN(balance) ? 0 : balance);
   }, 0);
 
+  const renderContent = () => {
+    switch (activeSection) {
+      case "external":
+        return <ExternalAccountsSection />;
+      default:
+        return (
+          <>
+            {/* Welcome Section */}
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Good morning, {user.firstName}
+              </h1>
+              <p className="text-gray-600">
+                Here's your account overview for today, {new Date().toLocaleDateString('en-US', { 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
+              </p>
+            </div>
+
+            {/* Quick Actions */}
+            <QuickActions />
+
+            {/* Accounts Section */}
+            <div className="bg-white rounded-lg shadow-key p-6 mb-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold">My Accounts</h2>
+                <span className="text-sm text-gray-500">
+                  Total Balance: ${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+              
+              {accountsLoading ? (
+                <div className="text-center py-8">Loading accounts...</div>
+              ) : accountsError ? (
+                <div className="text-center py-8 text-red-600">
+                  Failed to load accounts. Please refresh the page.
+                </div>
+              ) : accounts.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  No accounts found.
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {accounts.map((account: any) => (
+                    <AccountCard key={account.id} account={account} />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Recent Transactions */}
+            <div className="bg-white rounded-lg shadow-key p-6 mb-8">
+              <h2 className="text-xl font-bold mb-6">Recent Transactions</h2>
+              
+              {transactionsLoading ? (
+                <div className="text-center py-8">Loading transactions...</div>
+              ) : transactionsError ? (
+                <div className="text-center py-8 text-red-600">
+                  Failed to load transactions. Please refresh the page.
+                </div>
+              ) : transactions.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  No recent transactions found.
+                </div>
+              ) : (
+                <TransactionTable transactions={transactions} />
+              )}
+            </div>
+
+            {/* Balance Overview Chart */}
+            <div className="bg-white rounded-lg shadow-key p-6 mb-8">
+              <h2 className="text-xl font-bold mb-6">Balance Trend</h2>
+              <div className="h-80">
+                <BalanceChart accounts={accounts} />
+              </div>
+            </div>
+          </>
+        );
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -100,77 +186,15 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Good morning, {user.firstName}
-          </h1>
-          <p className="text-gray-600">
-            Here's your account overview for today, {new Date().toLocaleDateString('en-US', { 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}
-          </p>
+      <div className="flex max-w-7xl mx-auto">
+        {/* Sidebar */}
+        <div className="p-4">
+          <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
         </div>
 
-        {/* Quick Actions */}
-        <QuickActions />
-
-        {/* Accounts Section */}
-        <div className="bg-white rounded-lg shadow-key p-6 mb-8">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold">My Accounts</h2>
-            <span className="text-sm text-gray-500">
-              Total Balance: ${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-            </span>
-          </div>
-          
-          {accountsLoading ? (
-            <div className="text-center py-8">Loading accounts...</div>
-          ) : accountsError ? (
-            <div className="text-center py-8 text-red-600">
-              Failed to load accounts. Please refresh the page.
-            </div>
-          ) : accounts.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              No accounts found.
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {accounts.map((account: any) => (
-                <AccountCard key={account.id} account={account} />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Recent Transactions */}
-        <div className="bg-white rounded-lg shadow-key p-6 mb-8">
-          <h2 className="text-xl font-bold mb-6">Recent Transactions</h2>
-          
-          {transactionsLoading ? (
-            <div className="text-center py-8">Loading transactions...</div>
-          ) : transactionsError ? (
-            <div className="text-center py-8 text-red-600">
-              Failed to load transactions. Please refresh the page.
-            </div>
-          ) : transactions.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              No recent transactions found.
-            </div>
-          ) : (
-            <TransactionTable transactions={transactions} />
-          )}
-        </div>
-
-        {/* Balance Overview Chart */}
-        <div className="bg-white rounded-lg shadow-key p-6 mb-8">
-          <h2 className="text-xl font-bold mb-6">Balance Trend</h2>
-          <div className="h-80">
-            <BalanceChart accounts={accounts} />
-          </div>
+        {/* Main Content */}
+        <div className="flex-1 px-4 py-8">
+        {renderContent()}
         </div>
       </div>
     </div>
