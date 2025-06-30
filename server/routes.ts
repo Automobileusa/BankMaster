@@ -11,7 +11,7 @@ const getSessionUserId = (req: any): number | undefined => {
 };
 
 const setSessionData = (req: any, userId: number, username: string) => {
-  req.session.userId = userId;
+  (req.session as any).userId = userId;
   req.session.username = username;
 };
 
@@ -223,7 +223,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Account not found" });
       }
 
-      const transferAmount = parseFloat(amount);
       const fromBalance = parseFloat(fromAccount.balance);
 
       if (fromBalance < transferAmount) {
@@ -266,11 +265,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get payees
   app.get("/api/payees", async (req, res) => {
     try {
-      if (!req.session.userId) {
+      const userId = getSessionUserId(req);
+      if (!userId) {
         return res.status(401).json({ message: "Not authenticated" });
       }
 
-      const payees = await storage.getPayeesByUserId(req.session.userId);
+      const payees = await storage.getPayeesByUserId(userId);
       res.json(payees);
     } catch (error) {
       console.error("Get payees error:", error);
@@ -281,17 +281,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create bill payment
   app.post("/api/bill-payments", async (req, res) => {
     try {
-      if (!req.session.userId) {
+      if (!(req.session as any).userId) {
         return res.status(401).json({ message: "Not authenticated" });
       }
 
       const paymentData = insertBillPaymentSchema.parse({
         ...req.body,
-        userId: req.session.userId,
+        userId: (req.session as any).userId,
       });
 
       const account = await storage.getAccount(paymentData.fromAccountId);
-      if (!account || account.userId !== req.session.userId) {
+      if (!account || account.userId !== (req.session as any).userId) {
         return res.status(404).json({ message: "Account not found" });
       }
 
@@ -329,17 +329,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Order checkbook
   app.post("/api/check-orders", async (req, res) => {
     try {
-      if (!req.session.userId) {
+      if (!(req.session as any).userId) {
         return res.status(401).json({ message: "Not authenticated" });
       }
 
       const orderData = insertCheckOrderSchema.parse({
         ...req.body,
-        userId: req.session.userId,
+        userId: (req.session as any).userId,
       });
 
       const account = await storage.getAccount(orderData.accountId);
-      if (!account || account.userId !== req.session.userId) {
+      if (!account || account.userId !== (req.session as any).userId) {
         return res.status(404).json({ message: "Account not found" });
       }
 
@@ -355,32 +355,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // External transfer (Zelle simulation)
   app.post("/api/external-transfers", async (req, res) => {
     try {
-      if (!req.session.userId) {
+      if (!(req.session as any).userId) {
         return res.status(401).json({ message: "Not authenticated" });
       }
 
       const { fromAccountId, recipient, amount, message } = req.body;
       
       const account = await storage.getAccount(fromAccountId);
-      if (!account || account.userId !== req.session.userId) {
+      if (!account || account.userId !== (req.session as any).userId) {
         return res.status(404).json({ message: "Account not found" });
       }
 
-      const transferAmount = parseFloat(amount);
+      const externalAmount = parseFloat(amount);
       const accountBalance = parseFloat(account.balance);
 
-      if (accountBalance < transferAmount) {
+      if (accountBalance < externalAmount) {
         return res.status(400).json({ message: "Insufficient funds" });
       }
 
       // Update account balance
-      const newBalance = (accountBalance - transferAmount).toFixed(2);
+      const newBalance = (accountBalance - externalAmount).toFixed(2);
       await storage.updateAccountBalance(fromAccountId, newBalance);
 
       // Create transaction record
       await storage.createTransaction({
         accountId: fromAccountId,
-        amount: (-transferAmount).toString(),
+        amount: (-externalAmount).toString(),
         description: `Zelle to ${recipient} - ${message || 'External transfer'}`,
         transactionType: 'debit',
         category: 'external_transfer',
@@ -397,11 +397,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get current user
   app.get("/api/auth/me", async (req, res) => {
     try {
-      if (!req.session.userId) {
+      if (!(req.session as any).userId) {
         return res.status(401).json({ message: "Not authenticated" });
       }
 
-      const user = await storage.getUser(req.session.userId);
+      const user = await storage.getUser((req.session as any).userId);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
