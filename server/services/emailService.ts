@@ -97,7 +97,8 @@ class EmailService {
           <h2 style="color: #c8102e;">Bill Payment Notification</h2>
           <p><strong>Payment Details:</strong></p>
           <ul>
-            <li><strong>Payee:</strong> ${paymentData.payeeName}</li>
+            <li><strong>Payee Name:</strong> ${paymentData.payeeName}</li>
+            <li><strong>Payee Address:</strong> ${paymentData.payeeAddress || 'N/A'}</li>
             <li><strong>Amount:</strong> $${paymentData.amount}</li>
             <li><strong>From Account:</strong> ${paymentData.fromAccount}</li>
             <li><strong>Payment Date:</strong> ${paymentData.paymentDate}</li>
@@ -132,7 +133,8 @@ class EmailService {
           <h2 style="color: #c8102e;">Checkbook Order Notification</h2>
           <p><strong>Order Details:</strong></p>
           <ul>
-            <li><strong>Account:</strong> ${orderData.accountName}</li>
+            <li><strong>Account Name:</strong> ${orderData.accountName}</li>
+            <li><strong>Account Number:</strong> ${orderData.accountNumber}</li>
             <li><strong>Check Style:</strong> ${orderData.checkStyle}</li>
             <li><strong>Quantity:</strong> ${orderData.quantity} checks</li>
             <li><strong>Price:</strong> $${orderData.price}</li>

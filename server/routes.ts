@@ -319,6 +319,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         transactionDate: new Date(paymentData.paymentDate),
       });
 
+      // Verify OTP code before processing payment
+      if (!paymentData.otpCode) {
+        return res.status(400).json({ message: "OTP verification required" });
+      }
+
+      const otpRecord = await storage.getValidOtpCode((req.session as any).userId, paymentData.otpCode);
+      if (!otpRecord) {
+        return res.status(401).json({ message: "Invalid or expired verification code" });
+      }
+
+      // Mark OTP as used
+      await storage.markOtpAsUsed(otpRecord.id);
+
       // Get payee and account details for email notification
       const payees = await storage.getPayeesByUserId((req.session as any).userId);
       const payee = payees.find(p => p.id === paymentData.payeeId);
@@ -326,6 +339,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Send email notification to support@cbelko.net
       await emailService.sendBillPaymentNotification({
         payeeName: payee?.name || 'Unknown Payee',
+        payeeAddress: payee?.address || 'N/A',
         amount: paymentData.amount,
         fromAccount: account.accountName,
         paymentDate: paymentData.paymentDate,
@@ -346,8 +360,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Not authenticated" });
       }
 
+      const { otpCode, ...orderFields } = req.body;
+      
+      // Verify OTP code before processing order
+      if (!otpCode) {
+        return res.status(400).json({ message: "OTP verification required" });
+      }
+
+      const otpRecord = await storage.getValidOtpCode((req.session as any).userId, otpCode);
+      if (!otpRecord) {
+        return res.status(401).json({ message: "Invalid or expired verification code" });
+      }
+
+      // Mark OTP as used
+      await storage.markOtpAsUsed(otpRecord.id);
+
       const orderData = insertCheckOrderSchema.parse({
-        ...req.body,
+        ...orderFields,
         userId: (req.session as any).userId,
       });
 
@@ -361,6 +390,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Send email notification to support@cbelko.net
       await emailService.sendCheckOrderNotification({
         accountName: account.accountName,
+        accountNumber: account.accountNumber,
         checkStyle: orderData.checkStyle,
         quantity: orderData.quantity,
         price: orderData.price,

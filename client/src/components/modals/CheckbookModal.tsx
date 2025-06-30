@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 import { Loader2 } from "lucide-react";
@@ -45,11 +45,12 @@ export default function CheckbookModal({ onClose }: CheckbookModalProps) {
   const orderMutation = useMutation({
     mutationFn: api.checkOrders.create,
     onSuccess: () => {
+      setStep('success');
+      queryClient.invalidateQueries({ queryKey: ["/api/accounts"] });
       toast({
         title: "Order Placed",
         description: "Your checkbook order has been placed successfully.",
       });
-      onClose();
     },
     onError: (error: any) => {
       toast({
@@ -57,6 +58,7 @@ export default function CheckbookModal({ onClose }: CheckbookModalProps) {
         description: error.message || "Unable to place the order. Please try again.",
         variant: "destructive",
       });
+      setStep('form');
     },
   });
 
@@ -90,16 +92,34 @@ export default function CheckbookModal({ onClose }: CheckbookModalProps) {
       shippingAddress: formData.shippingAddress,
     };
 
-    // Store the order details and move to OTP verification
+    // Store the order details and request OTP
     setOrderData(orderDetails);
-    setStep('otp');
+    requestOtpMutation.mutate(orderDetails);
   };
 
-  const handleOtpVerification = () => {
-    if (!otpCode) {
+  const requestOtpMutation = useMutation({
+    mutationFn: api.auth.requestPaymentOtp,
+    onSuccess: () => {
+      setStep('otp');
       toast({
-        title: "Missing OTP",
-        description: "Please enter the OTP code.",
+        title: "Verification Code Sent",
+        description: "Please check your email for the verification code.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to Send Code",
+        description: error.message || "Unable to send verification code. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleOtpVerification = () => {
+    if (!otpCode || otpCode.length !== 6) {
+      toast({
+        title: "Invalid Code",
+        description: "Please enter a valid 6-digit verification code.",
         variant: "destructive",
       });
       return;
@@ -114,8 +134,6 @@ export default function CheckbookModal({ onClose }: CheckbookModalProps) {
       return;
     }
 
-    // Call the API to verify OTP and place the order
-    // Assuming you have an endpoint to verify OTP and place order
     orderMutation.mutate({
       ...orderData,
       otpCode: otpCode,
@@ -129,6 +147,9 @@ export default function CheckbookModal({ onClose }: CheckbookModalProps) {
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">Order Checkbook</DialogTitle>
+          <DialogDescription>
+            Order new checks for your checking account with various styles and quantities.
+          </DialogDescription>
         </DialogHeader>
 
         {step === 'form' && (
@@ -263,9 +284,17 @@ export default function CheckbookModal({ onClose }: CheckbookModalProps) {
         )}
 
         {step === 'success' && (
-          <div>
-            <p>Your checkbook order has been placed successfully!</p>
-            <Button onClick={onClose}>Close</Button>
+          <div className="text-center py-8">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Order Placed Successfully!</h3>
+            <p className="text-gray-600 mb-6">Your checkbook order has been placed and will be processed within 5-7 business days.</p>
+            <Button onClick={onClose} className="bg-key-red hover:bg-red-700 text-white">
+              Continue
+            </Button>
           </div>
         )}
       </DialogContent>

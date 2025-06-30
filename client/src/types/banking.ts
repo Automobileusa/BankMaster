@@ -71,11 +71,19 @@ export interface ExternalTransferRequest {
   amount: string;
   message?: string;
 }
-export interface User {
+
+export interface ExternalAccount {
   id: number;
-  username: string;
-  firstName: string;
-  lastName: string;
+  userId: number;
+  bankName: string;
+  accountName: string;
+  accountNumber: string;
+  routingNumber: string;
+  address: string;
+  microDeposit1?: string;
+  microDeposit2?: string;
+  isVerified: boolean;
+  createdAt?: string;
 }
 
 export interface Account {
