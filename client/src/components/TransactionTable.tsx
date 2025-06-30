@@ -1,7 +1,117 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 import type { Transaction } from "@/types/banking";
+
+interface TransactionTableProps {
+  transactions: Transaction[];
+}
+
+export default function TransactionTable({ transactions }: TransactionTableProps) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showAll, setShowAll] = useState(false);
+
+  const filteredTransactions = transactions.filter(transaction =>
+    transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    transaction.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const displayedTransactions = showAll ? filteredTransactions : filteredTransactions.slice(0, 5);
+
+  const formatAmount = (amount: string, type: string) => {
+    const value = parseFloat(amount);
+    if (isNaN(value)) return '$0.00';
+    
+    const formatted = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(Math.abs(value));
+
+    return type === 'debit' ? `-${formatted}` : `+${formatted}`;
+  };
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  const getCategoryBadgeColor = (category: string) => {
+    switch (category) {
+      case 'transfer': return 'bg-blue-100 text-blue-800';
+      case 'bill_payment': return 'bg-orange-100 text-orange-800';
+      case 'external_transfer': return 'bg-green-100 text-green-800';
+      case 'deposit': return 'bg-emerald-100 text-emerald-800';
+      case 'withdrawal': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+        <Input
+          placeholder="Search transactions..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-10"
+        />
+      </div>
+
+      {/* Transactions */}
+      <div className="space-y-2">
+        {displayedTransactions.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            {searchTerm ? 'No transactions found matching your search.' : 'No transactions available.'}
+          </div>
+        ) : (
+          displayedTransactions.map((transaction) => (
+            <div key={transaction.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+              <div className="flex-1">
+                <div className="flex items-center gap-3">
+                  <div>
+                    <div className="font-medium text-gray-900">
+                      {transaction.description}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {formatDate(transaction.transactionDate)}
+                    </div>
+                  </div>
+                  <Badge className={`text-xs ${getCategoryBadgeColor(transaction.category)}`}>
+                    {transaction.category.replace('_', ' ').toUpperCase()}
+                  </Badge>
+                </div>
+              </div>
+              <div className={`font-semibold ${
+                transaction.transactionType === 'debit' ? 'text-red-600' : 'text-green-600'
+              }`}>
+                {formatAmount(transaction.amount, transaction.transactionType)}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Show More/Less Button */}
+      {filteredTransactions.length > 5 && (
+        <div className="text-center">
+          <Button
+            variant="outline"
+            onClick={() => setShowAll(!showAll)}
+          >
+            {showAll ? 'Show Less' : `Show All (${filteredTransactions.length})`}
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface TransactionTableProps {
   transactions: Transaction[];

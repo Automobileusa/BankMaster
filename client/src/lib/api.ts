@@ -11,6 +11,10 @@ export const api = {
   auth: {
     login: async (username: string, password: string): Promise<LoginResponse> => {
       const response = await apiRequest("POST", "/api/auth/login", { username, password });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Network error' }));
+        throw new Error(errorData.message || 'Login failed');
+      }
       return response.json();
     },
     

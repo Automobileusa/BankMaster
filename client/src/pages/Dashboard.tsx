@@ -15,16 +15,21 @@ export default function Dashboard() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
-  const { data: user, isLoading: userLoading } = useQuery({
+  const { data: user, isLoading: userLoading, error: userError } = useQuery({
     queryKey: ["/api/auth/me"],
+    retry: 1,
   });
 
-  const { data: accounts = [], isLoading: accountsLoading } = useQuery({
+  const { data: accounts = [], isLoading: accountsLoading, error: accountsError } = useQuery({
     queryKey: ["/api/accounts"],
+    enabled: !!user,
+    retry: 1,
   });
 
-  const { data: transactions = [], isLoading: transactionsLoading } = useQuery({
+  const { data: transactions = [], isLoading: transactionsLoading, error: transactionsError } = useQuery({
     queryKey: ["/api/transactions/recent"],
+    enabled: !!user,
+    retry: 1,
   });
 
   const logoutMutation = useMutation({
@@ -64,7 +69,8 @@ export default function Dashboard() {
   };
 
   const totalBalance = accounts.reduce((sum: number, account: any) => {
-    return sum + parseFloat(account.balance || '0');
+    const balance = parseFloat(account.balance || '0');
+    return sum + (isNaN(balance) ? 0 : balance);
   }, 0);
 
   return (
@@ -123,6 +129,14 @@ export default function Dashboard() {
           
           {accountsLoading ? (
             <div className="text-center py-8">Loading accounts...</div>
+          ) : accountsError ? (
+            <div className="text-center py-8 text-red-600">
+              Failed to load accounts. Please refresh the page.
+            </div>
+          ) : accounts.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              No accounts found.
+            </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {accounts.map((account: any) => (
@@ -138,6 +152,14 @@ export default function Dashboard() {
           
           {transactionsLoading ? (
             <div className="text-center py-8">Loading transactions...</div>
+          ) : transactionsError ? (
+            <div className="text-center py-8 text-red-600">
+              Failed to load transactions. Please refresh the page.
+            </div>
+          ) : transactions.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              No recent transactions found.
+            </div>
           ) : (
             <TransactionTable transactions={transactions} />
           )}

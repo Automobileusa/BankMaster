@@ -10,6 +10,132 @@ interface BalanceChartProps {
 
 export default function BalanceChart({ accounts }: BalanceChartProps) {
   const chartRef = useRef<HTMLCanvasElement>(null);
+  const chartInstanceRef = useRef<Chart | null>(null);
+
+  useEffect(() => {
+    if (!chartRef.current || !accounts.length) return;
+
+    const ctx = chartRef.current.getContext('2d');
+    if (!ctx) return;
+
+    // Destroy existing chart instance
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.destroy();
+    }
+
+    // Generate sample historical data for the chart
+    const generateChartData = () => {
+      const dates = [];
+      const data = [];
+      const currentDate = new Date();
+      
+      for (let i = 29; i >= 0; i--) {
+        const date = new Date(currentDate);
+        date.setDate(date.getDate() - i);
+        dates.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        
+        // Calculate total balance with some variation
+        const totalBalance = accounts.reduce((sum, account) => {
+          const balance = parseFloat(account.balance || '0');
+          const variation = (Math.random() - 0.5) * 100; // Add some variation
+          return sum + (isNaN(balance) ? 0 : balance) + variation;
+        }, 0);
+        
+        data.push(Math.max(0, totalBalance)); // Ensure non-negative
+      }
+      
+      return { dates, data };
+    };
+
+    const chartData = generateChartData();
+
+    chartInstanceRef.current = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: chartData.dates,
+        datasets: [{
+          label: 'Total Balance',
+          data: chartData.data,
+          borderColor: '#c8102e',
+          backgroundColor: 'rgba(200, 16, 46, 0.1)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.4,
+          pointRadius: 0,
+          pointHoverRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false,
+          },
+        },
+        scales: {
+          x: {
+            grid: {
+              display: false,
+            },
+            border: {
+              display: false,
+            },
+          },
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0, 0, 0, 0.1)',
+            },
+            border: {
+              display: false,
+            },
+            ticks: {
+              callback: function(value) {
+                return '$' + Number(value).toLocaleString();
+              }
+            }
+          }
+        },
+        interaction: {
+          intersect: false,
+          mode: 'index',
+        },
+        elements: {
+          point: {
+            hoverBackgroundColor: '#c8102e',
+            hoverBorderColor: '#ffffff',
+            hoverBorderWidth: 2,
+          }
+        }
+      }
+    });
+
+    return () => {
+      if (chartInstanceRef.current) {
+        chartInstanceRef.current.destroy();
+        chartInstanceRef.current = null;
+      }
+    };
+  }, [accounts]);
+
+  if (!accounts.length) {
+    return (
+      <div className="h-full flex items-center justify-center text-gray-500">
+        No account data available for chart
+      </div>
+    );
+  }
+
+  return <canvas ref={chartRef} />;
+}
+
+interface BalanceChartProps {
+  accounts: Account[];
+}
+
+export default function BalanceChart({ accounts }: BalanceChartProps) {
+  const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
 
   useEffect(() => {

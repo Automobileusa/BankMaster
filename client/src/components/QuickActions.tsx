@@ -87,3 +87,91 @@ export default function QuickActions() {
     </>
   );
 }
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { ArrowLeftRight, CreditCard, FileText, Send } from "lucide-react";
+import TransferModal from "./modals/TransferModal";
+import PayBillModal from "./modals/PayBillModal";
+import CheckbookModal from "./modals/CheckbookModal";
+import ExternalTransferModal from "./modals/ExternalTransferModal";
+
+export default function QuickActions() {
+  const [activeModal, setActiveModal] = useState<string | null>(null);
+
+  const actions = [
+    {
+      id: "transfer",
+      title: "Transfer Money",
+      description: "Between your accounts",
+      icon: ArrowLeftRight,
+      color: "bg-blue-50 hover:bg-blue-100 border-blue-200",
+      iconColor: "text-blue-600",
+    },
+    {
+      id: "payBill",
+      title: "Pay Bills",
+      description: "Schedule payments",
+      icon: CreditCard,
+      color: "bg-green-50 hover:bg-green-100 border-green-200",
+      iconColor: "text-green-600",
+    },
+    {
+      id: "external",
+      title: "Send Money",
+      description: "Zelle & external transfers",
+      icon: Send,
+      color: "bg-purple-50 hover:bg-purple-100 border-purple-200",
+      iconColor: "text-purple-600",
+    },
+    {
+      id: "checkbook",
+      title: "Order Checks",
+      description: "Get new checkbooks",
+      icon: FileText,
+      color: "bg-orange-50 hover:bg-orange-100 border-orange-200",
+      iconColor: "text-orange-600",
+    },
+  ];
+
+  const closeModal = () => setActiveModal(null);
+
+  return (
+    <>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        {actions.map((action) => {
+          const Icon = action.icon;
+          return (
+            <Card
+              key={action.id}
+              className={`cursor-pointer transition-all ${action.color} border-2`}
+              onClick={() => setActiveModal(action.id)}
+            >
+              <CardContent className="p-4 text-center">
+                <Icon className={`h-8 w-8 mx-auto mb-2 ${action.iconColor}`} />
+                <h3 className="font-semibold text-gray-900 mb-1">
+                  {action.title}
+                </h3>
+                <p className="text-sm text-gray-600">{action.description}</p>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Modals */}
+      {activeModal === "transfer" && (
+        <TransferModal onClose={closeModal} />
+      )}
+      {activeModal === "payBill" && (
+        <PayBillModal onClose={closeModal} />
+      )}
+      {activeModal === "checkbook" && (
+        <CheckbookModal onClose={closeModal} />
+      )}
+      {activeModal === "external" && (
+        <ExternalTransferModal onClose={closeModal} />
+      )}
+    </>
+  );
+}

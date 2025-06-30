@@ -22,6 +22,9 @@ export default function AccountCard({ account }: AccountCardProps) {
 
   const formatBalance = (balance: string) => {
     const amount = parseFloat(balance);
+    if (isNaN(amount)) {
+      return '$0.00';
+    }
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -37,8 +40,11 @@ export default function AccountCard({ account }: AccountCardProps) {
         <div className="text-2xl font-bold mb-3 text-gray-900">
           {formatBalance(account.balance)}
         </div>
+        <div className="text-gray-700 text-sm font-medium mb-1">
+          {account.accountName || 'Account'}
+        </div>
         <div className="text-gray-500 text-sm mb-4">
-          Account {account.accountNumber}
+          ••••{account.accountNumber?.slice(-4) || '0000'}
         </div>
         <Button 
           className="bg-blue-600 hover:bg-blue-800 text-white text-sm font-semibold"

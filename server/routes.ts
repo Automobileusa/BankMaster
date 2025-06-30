@@ -202,6 +202,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { fromAccountId, toAccountId, amount, memo } = req.body;
       
+      // Input validation
+      if (!fromAccountId || !toAccountId || !amount) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+      
+      if (fromAccountId === toAccountId) {
+        return res.status(400).json({ message: "Cannot transfer to the same account" });
+      }
+      
+      const transferAmount = parseFloat(amount);
+      if (isNaN(transferAmount) || transferAmount <= 0) {
+        return res.status(400).json({ message: "Invalid transfer amount" });
+      }
+      
       const fromAccount = await storage.getAccount(fromAccountId);
       const toAccount = await storage.getAccount(toAccountId);
 
