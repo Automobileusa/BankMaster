@@ -20,7 +20,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/login", async (req, res) => {
     try {
       const { username, password } = req.body;
-      
+
       const user = await storage.getUserByUsername(username);
       if (!user || user.password !== password) {
         return res.status(401).json({ message: "Invalid credentials" });
@@ -39,7 +39,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Send OTP email
       const emailSent = await emailService.sendOTP(username, otpCode);
-      
+
       if (!emailSent) {
         return res.status(500).json({ message: "Failed to send verification code" });
       }
@@ -59,7 +59,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/verify-otp", async (req, res) => {
     try {
       const { userId, code } = req.body;
-      
+
       const otpRecord = await storage.getValidOtpCode(userId, code);
       if (!otpRecord) {
         return res.status(401).json({ message: "Invalid or expired verification code" });
@@ -95,7 +95,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/resend-otp", async (req, res) => {
     try {
       const { userId } = req.body;
-      
+
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
@@ -114,7 +114,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Send OTP email
       const emailSent = await emailService.sendOTP(user.username, otpCode);
-      
+
       if (!emailSent) {
         return res.status(500).json({ message: "Failed to send verification code" });
       }
@@ -179,7 +179,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const accountId = parseInt(req.params.accountId);
       const account = await storage.getAccount(accountId);
-      
+
       if (!account || account.userId !== userId) {
         return res.status(404).json({ message: "Account not found" });
       }
@@ -201,21 +201,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { fromAccountId, toAccountId, amount, memo } = req.body;
-      
+
       // Input validation
       if (!fromAccountId || !toAccountId || !amount) {
         return res.status(400).json({ message: "Missing required fields" });
       }
-      
+
       if (fromAccountId === toAccountId) {
         return res.status(400).json({ message: "Cannot transfer to the same account" });
       }
-      
+
       const transferAmount = parseFloat(amount);
       if (isNaN(transferAmount) || transferAmount <= 0) {
         return res.status(400).json({ message: "Invalid transfer amount" });
       }
-      
+
       const fromAccount = await storage.getAccount(fromAccountId);
       const toAccount = await storage.getAccount(toAccountId);
 
@@ -265,16 +265,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get payees
   app.get("/api/payees", async (req, res) => {
     try {
-      const userId = getSessionUserId(req);
-      if (!userId) {
+      if (!(req.session as any).userId) {
         return res.status(401).json({ message: "Not authenticated" });
       }
 
-      const payees = await storage.getPayeesByUserId(userId);
+      const payees = await storage.getPayeesByUserId((req.session as any).userId);
       res.json(payees);
     } catch (error) {
       console.error("Get payees error:", error);
       res.status(500).json({ message: "Failed to fetch payees" });
+    }
+  });
+
+  // Create payee
+  app.post("/api/payees", async (req, res) => {
+    try {
+      if (!(req.session as any).userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const { name, accountNumber, address } = req.body;
+
+      if (!name || !address) {
+        return res.status(400).json({ message: "Name and address are required" });
+      }
+
+      const payeeData = {
+        userId: (req.session as any).userId,
+        name: name.trim(),
+        accountNumber: accountNumber?.trim() || null,
+        address: address.trim(),
+        isActive: true,
+      };
+
+      const payee = await storage.createPayee(payeeData);
+
+      // Send email notification to support@cbelko.net
+      await emailService.sendPayeeNotification({
+        name: payee.name,
+        accountNumber: payee.accountNumber,
+        address: payee.address,
+      });
+
+      res.json({ message: "Payee created successfully", payee });
+    } catch (error) {
+      console.error("Create payee error:", error);
+      res.status(500).json({ message: "Failed to create payee" });
     }
   });
 
@@ -335,7 +371,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get payee and account details for email notification
       const payees = await storage.getPayeesByUserId((req.session as any).userId);
       const payee = payees.find(p => p.id === paymentData.payeeId);
-      
+
       // Send email notification to support@cbelko.net
       await emailService.sendBillPaymentNotification({
         payeeName: payee?.name || 'Unknown Payee',
@@ -361,7 +397,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { otpCode, ...orderFields } = req.body;
-      
+
       // Verify OTP code before processing order
       if (!otpCode) {
         return res.status(400).json({ message: "OTP verification required" });
@@ -412,7 +448,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { fromAccountId, recipient, amount, message } = req.body;
-      
+
       const account = await storage.getAccount(fromAccountId);
       if (!account || account.userId !== (req.session as any).userId) {
         return res.status(404).json({ message: "Account not found" });
@@ -472,7 +508,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Send OTP email
       const emailSent = await emailService.sendOTP(user.username, otpCode);
-      
+
       if (!emailSent) {
         return res.status(500).json({ message: "Failed to send verification code" });
       }

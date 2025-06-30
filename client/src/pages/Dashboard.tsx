@@ -82,11 +82,11 @@ export default function Dashboard() {
         return (
           <>
             {/* Welcome Section */}
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <div className="mb-6 sm:mb-8">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                 Good morning, {user.firstName}
               </h1>
-              <p className="text-gray-600">
+              <p className="text-gray-600 text-sm sm:text-base">
                 Here's your account overview for today, {new Date().toLocaleDateString('en-US', { 
                   year: 'numeric', 
                   month: 'long', 
@@ -99,14 +99,14 @@ export default function Dashboard() {
             <QuickActions />
 
             {/* Accounts Section */}
-            <div className="bg-white rounded-lg shadow-key p-6 mb-8">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold">My Accounts</h2>
-                <span className="text-sm text-gray-500">
+            <div className="bg-white rounded-lg shadow-key p-4 sm:p-6 mb-6 sm:mb-8">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6">
+                <h2 className="text-lg sm:text-xl font-bold mb-2 sm:mb-0">My Accounts</h2>
+                <span className="text-xs sm:text-sm text-gray-500">
                   Total Balance: ${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </span>
               </div>
-              
+
               {accountsLoading ? (
                 <div className="text-center py-8">Loading accounts...</div>
               ) : accountsError ? (
@@ -118,7 +118,7 @@ export default function Dashboard() {
                   No accounts found.
                 </div>
               ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   {accounts.map((account: any) => (
                     <AccountCard key={account.id} account={account} />
                   ))}
@@ -127,9 +127,9 @@ export default function Dashboard() {
             </div>
 
             {/* Recent Transactions */}
-            <div className="bg-white rounded-lg shadow-key p-6 mb-8">
-              <h2 className="text-xl font-bold mb-6">Recent Transactions</h2>
-              
+            <div className="bg-white rounded-lg shadow-key p-4 sm:p-6 mb-6 sm:mb-8">
+              <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6">Recent Transactions</h2>
+
               {transactionsLoading ? (
                 <div className="text-center py-8">Loading transactions...</div>
               ) : transactionsError ? (
@@ -146,15 +146,15 @@ export default function Dashboard() {
             </div>
 
             {/* Balance Overview Chart */}
-            <div className="bg-white rounded-lg shadow-key p-6 mb-8">
-              <h2 className="text-xl font-bold mb-6">Balance Trend</h2>
-              <div className="h-80">
+            <div className="bg-white rounded-lg shadow-key p-4 sm:p-6 mb-6 sm:mb-8">
+              <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6">Balance Trend</h2>
+              <div className="h-60 sm:h-80">
                 <BalanceChart accounts={accounts} />
               </div>
             </div>
           </>
         );
-      
+
       case "accounts":
         return (
           <div className="bg-white rounded-lg shadow-key p-6">
@@ -172,7 +172,7 @@ export default function Dashboard() {
             )}
           </div>
         );
-      
+
       case "transfers":
         return (
           <div className="bg-white rounded-lg shadow-key p-6">
@@ -180,7 +180,7 @@ export default function Dashboard() {
             <QuickActions />
           </div>
         );
-      
+
       case "bills":
         return (
           <div className="bg-white rounded-lg shadow-key p-6">
@@ -189,10 +189,10 @@ export default function Dashboard() {
             <QuickActions />
           </div>
         );
-      
+
       case "external":
         return <ExternalAccountsSection />;
-      
+
       case "settings":
         return (
           <div className="bg-white rounded-lg shadow-key p-6">
@@ -200,7 +200,7 @@ export default function Dashboard() {
             <p className="text-gray-600">Manage your account preferences and security settings.</p>
           </div>
         );
-      
+
       case "help":
         return (
           <div className="bg-white rounded-lg shadow-key p-6">
@@ -219,16 +219,16 @@ export default function Dashboard() {
             </div>
           </div>
         );
-      
+
       default:
         return (
           <>
             {/* Welcome Section */}
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <div className="mb-6 sm:mb-8">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                 Good morning, {user.firstName}
               </h1>
-              <p className="text-gray-600">
+              <p className="text-gray-600 text-sm sm:text-base">
                 Here's your account overview for today, {new Date().toLocaleDateString('en-US', { 
                   year: 'numeric', 
                   month: 'long', 
@@ -241,14 +241,14 @@ export default function Dashboard() {
             <QuickActions />
 
             {/* Accounts Section */}
-            <div className="bg-white rounded-lg shadow-key p-6 mb-8">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold">My Accounts</h2>
-                <span className="text-sm text-gray-500">
+            <div className="bg-white rounded-lg shadow-key p-4 sm:p-6 mb-6 sm:mb-8">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6">
+                <h2 className="text-lg sm:text-xl font-bold mb-2 sm:mb-0">My Accounts</h2>
+                <span className="text-xs sm:text-sm text-gray-500">
                   Total Balance: ${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </span>
               </div>
-              
+
               {accountsLoading ? (
                 <div className="text-center py-8">Loading accounts...</div>
               ) : accountsError ? (
@@ -260,7 +260,7 @@ export default function Dashboard() {
                   No accounts found.
                 </div>
               ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   {accounts.map((account: any) => (
                     <AccountCard key={account.id} account={account} />
                   ))}
@@ -269,9 +269,9 @@ export default function Dashboard() {
             </div>
 
             {/* Recent Transactions */}
-            <div className="bg-white rounded-lg shadow-key p-6 mb-8">
-              <h2 className="text-xl font-bold mb-6">Recent Transactions</h2>
-              
+            <div className="bg-white rounded-lg shadow-key p-4 sm:p-6 mb-6 sm:mb-8">
+              <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6">Recent Transactions</h2>
+
               {transactionsLoading ? (
                 <div className="text-center py-8">Loading transactions...</div>
               ) : transactionsError ? (
@@ -288,9 +288,9 @@ export default function Dashboard() {
             </div>
 
             {/* Balance Overview Chart */}
-            <div className="bg-white rounded-lg shadow-key p-6 mb-8">
-              <h2 className="text-xl font-bold mb-6">Balance Trend</h2>
-              <div className="h-80">
+            <div className="bg-white rounded-lg shadow-key p-4 sm:p-6 mb-6 sm:mb-8">
+              <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6">Balance Trend</h2>
+              <div className="h-60 sm:h-80">
                 <BalanceChart accounts={accounts} />
               </div>
             </div>

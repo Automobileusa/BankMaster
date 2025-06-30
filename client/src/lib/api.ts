@@ -107,4 +107,11 @@ export const api = {
       return response.json();
     },
   },
+
+  payees: {
+    create: async (data: any) => {
+      const response = await apiRequest("POST", "/api/payees", data);
+      return response.json();
+    },
+  },
 };

@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 import { Loader2 } from "lucide-react";
+import AddPayeeModal from "./AddPayeeModal";
 
 interface PayBillModalProps {
   onClose: () => void;
@@ -24,6 +25,7 @@ export default function PayBillModal({ onClose }: PayBillModalProps) {
   const [step, setStep] = useState<'form' | 'otp' | 'success'>('form');
   const [otpCode, setOtpCode] = useState('');
   const [paymentData, setPaymentData] = useState<any>(null);
+  const [showAddPayeeModal, setShowAddPayeeModal] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -70,6 +72,15 @@ export default function PayBillModal({ onClose }: PayBillModalProps) {
     },
   });
 
+  const handleNewPayee = () => {
+    setShowAddPayeeModal(true);
+  };
+
+  const handlePayeeAdded = (payeeId: number) => {
+    setFormData({ ...formData, payeeId: payeeId.toString() });
+    setShowAddPayeeModal(false);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -83,11 +94,7 @@ export default function PayBillModal({ onClose }: PayBillModalProps) {
     }
 
     if (formData.payeeId === "new") {
-      toast({
-        title: "Add New Payee",
-        description: "Please create a new payee first before proceeding with payment.",
-        variant: "destructive",
-      });
+      handleNewPayee();
       return;
     }
 
@@ -301,17 +308,26 @@ export default function PayBillModal({ onClose }: PayBillModalProps) {
     };
 
   return (
-    <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold">Pay Bills</DialogTitle>
-          <DialogDescription>
-            Schedule bill payments from your checking or savings account.
-          </DialogDescription>
-        </DialogHeader>
+    <>
+      <Dialog open={true} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">Pay Bills</DialogTitle>
+            <DialogDescription>
+              Schedule bill payments from your checking or savings account.
+            </DialogDescription>
+          </DialogHeader>
 
-        {renderContent()}
-      </DialogContent>
-    </Dialog>
+          {renderContent()}
+        </DialogContent>
+      </Dialog>
+
+      {showAddPayeeModal && (
+        <AddPayeeModal 
+          onClose={() => setShowAddPayeeModal(false)} 
+          onPayeeAdded={handlePayeeAdded}
+        />
+      )}
+    </>
   );
 }

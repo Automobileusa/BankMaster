@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -48,7 +47,7 @@ export default function Sidebar({ activeSection, onSectionChange }: SidebarProps
             {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </Button>
         </div>
-        
+
         <nav className="space-y-2">
           {menuItems.map((item) => {
             const Icon = item.icon;
