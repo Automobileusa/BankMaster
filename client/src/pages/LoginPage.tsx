@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 import { User, Lock, Shield } from "lucide-react";
 import OTPModal from "@/components/OTPModal";
+import Footer from "@/components/Footer";
 
 export default function LoginPage() {
   const [, setLocation] = useLocation();
@@ -136,23 +137,7 @@ export default function LoginPage() {
         </Card>
       </div>
 
-      {/* Footer */}
-      <footer className="text-center py-6 text-gray-500 text-xs border-t border-gray-200 mt-8">
-        <div className="flex justify-center flex-wrap gap-4 mb-4">
-          <a href="#" className="hover:underline">Diversity</a>
-          <a href="#" className="hover:underline">Disclosures</a>
-          <a href="#" className="hover:underline">Online Privacy</a>
-          <a href="#" className="hover:underline">About Key</a>
-        </div>
-        <div className="mb-4">
-          <img 
-            src="https://ibx.key.com/ibxolb/styles/assets/logo/key/fdic-logo-mobile-web.svg" 
-            alt="FDIC" 
-            className="h-8 mx-auto"
-          />
-        </div>
-        <p>© 2024 KeyCorp. KeyBank is Member FDIC.</p>
-      </footer>
+      <Footer />
 
       {/* OTP Modal */}
       {showOTP && userId && (

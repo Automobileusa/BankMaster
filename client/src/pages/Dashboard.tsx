@@ -8,6 +8,7 @@ import BalanceChart from "@/components/BalanceChart";
 import QuickActions from "@/components/QuickActions";
 import Sidebar from "@/components/Sidebar";
 import ExternalAccountsSection from "@/components/ExternalAccountsSection";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
@@ -337,6 +338,8 @@ export default function Dashboard() {
           {renderContent()}
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 }
