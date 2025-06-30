@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 
@@ -48,7 +48,7 @@ export default function TransferModal({ onClose }: TransferModalProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.fromAccountId || !formData.toAccountId || !formData.amount) {
       toast({
         title: "Missing Information",
@@ -93,9 +93,12 @@ export default function TransferModal({ onClose }: TransferModalProps) {
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">Transfer Money</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-gray-900">Transfer Money</DialogTitle>
+          <DialogDescription>
+            Transfer funds between your accounts
+          </DialogDescription>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="fromAccount" className="text-sm font-semibold">From Account</Label>

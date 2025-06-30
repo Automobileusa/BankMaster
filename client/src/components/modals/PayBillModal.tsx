@@ -72,7 +72,7 @@ export default function PayBillModal({ onClose }: PayBillModalProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.payeeId || !formData.fromAccountId || !formData.amount || !formData.paymentDate) {
       toast({
         title: "Missing Information",
@@ -115,7 +115,7 @@ export default function PayBillModal({ onClose }: PayBillModalProps) {
 
   const handleOtpSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!otpCode || otpCode.length !== 6) {
       toast({
         title: "Invalid Code",
@@ -156,7 +156,7 @@ export default function PayBillModal({ onClose }: PayBillModalProps) {
             <h3 className="text-lg font-semibold mb-2">Verify Your Payment</h3>
             <p className="text-gray-600">Please enter the 6-digit verification code sent to your email.</p>
           </div>
-          
+
           <div>
             <Label htmlFor="otpCode" className="text-sm font-semibold">Verification Code</Label>
             <Input
@@ -309,7 +309,7 @@ export default function PayBillModal({ onClose }: PayBillModalProps) {
             Schedule bill payments from your checking or savings account.
           </DialogDescription>
         </DialogHeader>
-        
+
         {renderContent()}
       </DialogContent>
     </Dialog>

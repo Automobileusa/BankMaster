@@ -48,7 +48,7 @@ export const billPayments = pgTable("bill_payments", {
   payeeId: integer("payee_id").notNull(),
   fromAccountId: integer("from_account_id").notNull(),
   amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
-  paymentDate: timestamp("payment_date").notNull(),
+  paymentDate: text("payment_date").notNull(),
   status: text("status").notNull().default("pending"), // 'pending', 'completed', 'failed'
   memo: text("memo"),
   createdAt: timestamp("created_at").notNull().defaultNow(),

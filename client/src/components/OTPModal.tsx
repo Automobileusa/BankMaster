@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 import { Shield } from "lucide-react";
@@ -72,14 +72,12 @@ export default function OTPModal({ userId, onSuccess, onClose }: OTPModalProps) 
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <div className="flex justify-center mb-4">
-            <Shield className="h-12 w-12 text-red-600" />
-          </div>
-          <DialogTitle className="text-center text-xl font-bold">
-            Security Verification
-          </DialogTitle>
+          <DialogTitle className="text-xl font-bold text-gray-900">Enter Verification Code</DialogTitle>
+          <DialogDescription>
+            Enter the 6-digit verification code sent to your email
+          </DialogDescription>
         </DialogHeader>
-        
+
         <div className="text-center text-gray-600 mb-6">
           We've sent a verification code to your registered email. Please enter it below:
         </div>

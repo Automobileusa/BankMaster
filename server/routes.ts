@@ -316,7 +316,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         description: `Bill payment - ${paymentData.memo || 'Payment'}`,
         transactionType: 'debit',
         category: 'bill_payment',
-        transactionDate: new Date(paymentData.paymentDate),
+        transactionDate: new Date(),
       });
 
       // Verify OTP code before processing payment

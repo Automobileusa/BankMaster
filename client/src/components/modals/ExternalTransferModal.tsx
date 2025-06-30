@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 
@@ -48,7 +48,7 @@ export default function ExternalTransferModal({ onClose }: ExternalTransferModal
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.fromAccountId || !formData.recipient || !formData.amount) {
       toast({
         title: "Missing Information",
@@ -71,7 +71,7 @@ export default function ExternalTransferModal({ onClose }: ExternalTransferModal
     // Validate email or phone format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^\+?[\d\s\-\(\)]{10,}$/;
-    
+
     if (!emailRegex.test(formData.recipient) && !phoneRegex.test(formData.recipient)) {
       toast({
         title: "Invalid Recipient",
@@ -96,8 +96,11 @@ export default function ExternalTransferModal({ onClose }: ExternalTransferModal
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">External Transfer (Zelle)</DialogTitle>
+          <DialogDescription>
+            Send money quickly and securely to friends and family
+          </DialogDescription>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="fromAccount" className="text-sm font-semibold">From Account</Label>

@@ -28,8 +28,8 @@ export const api = {
       return response.json();
     },
 
-    requestPaymentOtp: async (paymentData: any): Promise<{ message: string }> => {
-      const response = await apiRequest("POST", "/api/auth/request-payment-otp", paymentData);
+    requestPaymentOtp: async (): Promise<{ message: string }> => {
+      const response = await apiRequest("POST", "/api/auth/request-payment-otp");
       return response.json();
     },
 
@@ -73,11 +73,6 @@ export const api = {
   },
 
   externalAccounts: {
-    getAll: async () => {
-      const response = await apiRequest("GET", "/api/external-accounts");
-      return response.json();
-    },
-
     create: async (accountData: any) => {
       const response = await apiRequest("POST", "/api/external-accounts", accountData);
       return response.json();
@@ -109,53 +104,6 @@ export const api = {
 
     getByAccount: async (accountId: number) => {
       const response = await apiRequest("GET", `/api/accounts/${accountId}/transactions`);
-      return response.json();
-    },
-  },
-
-  transfers: {
-    create: async (data: TransferRequest): Promise<{ message: string }> => {
-      const response = await apiRequest("POST", "/api/transfers", data);
-      return response.json();
-    },
-  },
-
-  payees: {
-    getAll: async () => {
-      const response = await apiRequest("GET", "/api/payees");
-      return response.json();
-    },
-  },
-
-  billPayments: {
-    create: async (data: BillPaymentRequest): Promise<{ message: string }> => {
-      const response = await apiRequest("POST", "/api/bill-payments", data);
-      return response.json();
-    },
-  },
-
-  checkOrders: {
-    create: async (data: CheckOrderRequest): Promise<{ message: string }> => {
-      const response = await apiRequest("POST", "/api/check-orders", data);
-      return response.json();
-    },
-  },
-
-  externalTransfers: {
-    create: async (data: ExternalTransferRequest): Promise<{ message: string }> => {
-      const response = await apiRequest("POST", "/api/external-transfers", data);
-      return response.json();
-    },
-  },
-
-  externalAccounts: {
-    create: async (data: any): Promise<{ message: string }> => {
-      const response = await apiRequest("POST", "/api/external-accounts", data);
-      return response.json();
-    },
-
-    verify: async (data: { accountId: number; amount1: string; amount2: string }): Promise<{ message: string }> => {
-      const response = await apiRequest("POST", "/api/external-accounts/verify", data);
       return response.json();
     },
   },
