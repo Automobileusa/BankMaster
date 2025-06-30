@@ -326,15 +326,15 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <div className="flex max-w-7xl mx-auto">
+      <div className="flex max-w-7xl mx-auto min-h-screen">
         {/* Sidebar */}
-        <div className="p-4">
+        <div className="flex-shrink-0">
           <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 px-4 py-8">
-        {renderContent()}
+        <div className="flex-1 px-4 sm:px-6 lg:px-8 py-6 lg:py-8 overflow-hidden">
+          {renderContent()}
         </div>
       </div>
     </div>

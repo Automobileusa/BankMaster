@@ -37,8 +37,17 @@ export default function AccountCard({ account }: AccountCardProps) {
         <div className="text-red-600 text-sm font-bold uppercase mb-1">
           {getAccountTypeLabel(account.accountType)}
         </div>
-        <div className="text-2xl font-bold mb-3 text-gray-900">
-          {formatBalance(account.balance)}
+        <div className="text-2xl font-bold text-gray-900">
+          ${typeof account.balance === 'string' 
+            ? parseFloat(account.balance).toLocaleString('en-US', { 
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2 
+              })
+            : (account.balance || 0).toLocaleString('en-US', { 
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2 
+              })
+          }
         </div>
         <div className="text-gray-700 text-sm font-medium mb-1">
           {account.accountName || 'Account'}

