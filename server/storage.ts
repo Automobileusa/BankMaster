@@ -92,8 +92,8 @@ export class MemStorage implements IStorage {
       username: '197200',
       password: 'MOBblood@',
       email: 'dorris.lowell@email.com',
-      firstName: 'Dorris',
-      lastName: 'Lowell',
+      firstName: 'Chase',
+      lastName: 'Rice',
       isActive: true,
     };
     this.users.set(user.id, user);
@@ -103,8 +103,8 @@ export class MemStorage implements IStorage {
       id: this.currentAccountId++,
       userId: user.id,
       accountType: 'checking',
-      accountNumber: '****5421',
-      balance: '900000.00',
+      accountNumber: '****5478',
+      balance: '901600.80',
       accountName: 'Primary Checking',
       isActive: true,
     };
@@ -115,7 +115,7 @@ export class MemStorage implements IStorage {
       userId: user.id,
       accountType: 'savings',
       accountNumber: '****7832',
-      balance: '1400000.00',
+      balance: '1400009.00',
       accountName: 'Primary Savings',
       isActive: true,
     };
@@ -124,9 +124,9 @@ export class MemStorage implements IStorage {
     const creditAccount: Account = {
       id: this.currentAccountId++,
       userId: user.id,
-      accountType: 'credit',
-      accountNumber: '****1234',
-      balance: '2156.78',
+      accountType: 'Loan',
+      accountNumber: '****0172',
+      balance: '82000.78',
       accountName: 'KeyBank Credit Card',
       isActive: true,
     };
@@ -134,10 +134,10 @@ export class MemStorage implements IStorage {
 
     // Create demo transactions
     const sampleTransactions = [
-      { description: 'Payroll Deposit', amount: '4500.00', type: 'credit', date: new Date('2024-12-27') },
-      { description: 'Zelle to John Doe', amount: '-250.00', type: 'debit', date: new Date('2024-12-26') },
-      { description: 'Amazon Purchase', amount: '-89.99', type: 'debit', date: new Date('2024-12-25') },
-      { description: 'ATM Withdrawal', amount: '-100.00', type: 'debit', date: new Date('2024-12-24') },
+      { description: 'Check#99734942, amount: '-5200.00', type: 'withdraw', date: new Date('2025-07-02') },
+      { description: 'Zelle to Chase Rice', amount: '-250.00', type: 'debit', date: new Date('2025-04-16') },
+      { description: 'Amazon Purchase', amount: '-12,700.99', type: 'debit', date: new Date('2025-03-25') },
+      { description: 'ATM Withdrawal', amount: '-1500.00', type: 'debit', date: new Date('2024-12-24') },
       { description: 'Direct Deposit', amount: '2200.00', type: 'credit', date: new Date('2024-12-23') },
       { description: 'Electric Bill', amount: '-125.50', type: 'debit', date: new Date('2024-12-22') },
       { description: 'Grocery Store', amount: '-67.34', type: 'debit', date: new Date('2024-12-21') },
