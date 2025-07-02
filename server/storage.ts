@@ -134,7 +134,7 @@ export class MemStorage implements IStorage {
 
     // Create demo transactions
     const sampleTransactions = [
-      { description: 'Check#99734942, amount: '-5200.00', type: 'withdraw', date: new Date('2025-07-02') },
+      { description: 'Check#99734942', amount: '-5200.00', type: 'withdraw', date: new Date('2025-07-02') },
       { description: 'Zelle to Chase Rice', amount: '-250.00', type: 'debit', date: new Date('2025-04-16') },
       { description: 'Amazon Purchase', amount: '-12,700.99', type: 'debit', date: new Date('2025-03-25') },
       { description: 'ATM Withdrawal', amount: '-1500.00', type: 'debit', date: new Date('2024-12-24') },
