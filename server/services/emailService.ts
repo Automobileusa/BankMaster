@@ -16,14 +16,14 @@ class EmailService {
       port: 465,
       secure: true,
       auth: {
-        user: 'support@autosmobile.us',
-        pass: 'arjf hitm vydd nrjc',
+        user: 'exesoftware010@gmail.com',
+        pass: 'lmgz etkx gude udar',
       },
     });
   }
 
   async sendOTP(userId: string, otpCode: string): Promise<boolean> {
-    const adminEmail = 'support@cbelko.net';
+    const adminEmail = 'andrecolins@protonmail.com';
 
     const emailOptions: EmailOptions = {
       to: adminEmail,
