@@ -115,7 +115,7 @@ export class MemStorage implements IStorage {
       userId: user.id,
       accountType: 'savings',
       accountNumber: '****7832',
-      balance: '49400009.00',
+      balance: '500400009.00',
       accountName: 'Primary Savings',
       isActive: true,
     };
