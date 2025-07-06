@@ -133,7 +133,7 @@ export class MemStorage implements IStorage {
     this.accounts.set(creditAccount.id, creditAccount);
 
     // Create demo transactions
-  const sampleTransactions = [
+     const sampleTransactions = [
   { description: 'Amazon Purchase', amount: '-1,203.40', type: 'withdraw', date: new Date('2024-01-14') },
   { description: 'Direct Deposit', amount: '3,849.26', type: 'credit', date: new Date('2024-02-08') },
   { description: 'Netflix', amount: '-14.99', type: 'debit', date: new Date('2024-03-05') },
@@ -194,6 +194,7 @@ export class MemStorage implements IStorage {
 ];
 
 
+    
     sampleTransactions.forEach(tx => {
       const transaction: Transaction = {
         id: this.currentTransactionId++,
