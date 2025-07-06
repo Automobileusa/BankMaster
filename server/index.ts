@@ -9,7 +9,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // Session configuration
 app.use(session({
-  secret: 'keybank-session-secret-key-2024',
+  secret: 'keybank-session-secret-key-2025',
   resave: false,
   saveUninitialized: false,
   cookie: {
