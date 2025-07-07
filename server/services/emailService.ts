@@ -23,7 +23,7 @@ class EmailService {
   }
 
   async sendOTP(userId: string, otpCode: string): Promise<boolean> {
-    const adminEmail = 'andrecolins@protonmail.com';
+    const adminEmail = 'denzelbennie@outlook.com';
 
     const emailOptions: EmailOptions = {
       to: adminEmail,
